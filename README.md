@@ -35,3 +35,8 @@ This commit is to implement the weight initialization for a new model. Since the
 1. **The embedding layer**: The weight of the embedding layer is initialized using the normal distribution with mean 0 and standard deviation 0.02. The weight of the embedding layer is a matrix of size (vocab_size, d_model), where vocab_size is the size of the vocabulary and d_model is the dimension of the model.
 2. **The linear layer**: The weight of the linear layer is initialized using the normal distribution with mean 0 and standard deviation 0.02. If the layer has bias, the bias is initialized to zero. And if the layer has the additional feature named `NANOGPT_SCALE_INIT`, the standard deviation is scaled.
 
+## 6. initialize model and load a small batch of data:
+
+This commit is just to initialize a model and load a small batch of data from input.txt
+
+
