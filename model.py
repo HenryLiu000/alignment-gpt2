@@ -86,6 +86,9 @@ class GPT2(nn.Module):
         # Final linear layer
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
+        # weight sharing scheme
+        self.transformer.wte.weight = self.lm_head.weight
+
     def forward(self, idx, targets=None):
         # idx is of shape (B, T)
         B, T = idx.size()
