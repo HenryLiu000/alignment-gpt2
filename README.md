@@ -39,4 +39,7 @@ This commit is to implement the weight initialization for a new model. Since the
 
 This commit is just to initialize a model and load a small batch of data from input.txt
 
+## 7. training loop:
+
+Within a small batch of data, I can write a training loop to train the model. Simply feed the small batch of data to the model and do backpropagation.
 

@@ -23,4 +23,16 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPT2(GPTConfig())
 model.to(device)
 
+# optimize the model
 
+model.train()
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+
+for epoch in range(50):  # Number of epochs
+    optimizer.zero_grad()
+    x = x.to(device)
+    y = y.to(device)
+    logits, loss = model(x, y)
+    loss.backward()
+    optimizer.step()
+    print(f"Epoch {epoch}: loss = {loss.item()}")
