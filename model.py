@@ -59,6 +59,7 @@ class Block(nn.Module):
             nn.GELU(),
             nn.Linear(4 * config.n_embd, config.n_embd),
         )
+        self.mlp[2].NANOGPT_SCALE_INIT = 1
 
     def forward(self, x):
         # Layer normalization and attention
@@ -74,7 +75,7 @@ class GPT2(nn.Module):
     def __init__(self, config: GPTConfig):
         super().__init__()
         self.config = config
-
+        
         # transformer
         self.transformer = nn.ModuleDict(dict(
             wte=nn.Embedding(config.vocab_size, config.n_embd),  # word token embedding
@@ -88,6 +89,7 @@ class GPT2(nn.Module):
 
         # weight sharing scheme
         self.transformer.wte.weight = self.lm_head.weight
+        self.apply(self._init_weights)
 
     def forward(self, idx, targets=None):
         # idx is of shape (B, T)
@@ -109,10 +111,14 @@ class GPT2(nn.Module):
             loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
         return logits, loss
 
-    def _init_weights(self):
-        for p in self.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-            else:
-                nn.init.zeros_(p)
+    def _init_weights(self, module):
+         if isinstance(module, nn.Linear):
+             std = 0.02
+             if hasattr(module, 'NANOGPT_SCALE_INIT'):
+                 std *= (2 * self.config.n_layer) ** -0.5
+             torch.nn.init.normal_(module.weight, mean=0.0, std=std)
+             if module.bias is not None:
+                 torch.nn.init.zeros_(module.bias)
+         elif isinstance(module, nn.Embedding):
+             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 

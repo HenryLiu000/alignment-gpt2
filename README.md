@@ -29,3 +29,9 @@ For the forward function, it is trivial, if the data is represented as x, then w
 ## 4. weight sharing scheme:
 This commit is to implement the weight sharing scheme. The weight of wte of the transformer should actually be similar to the weight of the output layer. So I just let these two weight matrices to be the same.
 
+## 5. initializing weight for a new model:
+
+This commit is to implement the weight initialization for a new model. Since the task is to pretrain a new model and I have no GPU in my local computer so I will not try load state dict from huggingface to test the model's performance. To initialize the weight of the model, I follow Karparthy's tutorial, which is also the weight initialization method used in the huggingface library. The weight initialization method is as follows:
+1. **The embedding layer**: The weight of the embedding layer is initialized using the normal distribution with mean 0 and standard deviation 0.02. The weight of the embedding layer is a matrix of size (vocab_size, d_model), where vocab_size is the size of the vocabulary and d_model is the dimension of the model.
+2. **The linear layer**: The weight of the linear layer is initialized using the normal distribution with mean 0 and standard deviation 0.02. If the layer has bias, the bias is initialized to zero. And if the layer has the additional feature named `NANOGPT_SCALE_INIT`, the standard deviation is scaled.
+
