@@ -1,21 +1,23 @@
 from config import GPTConfig
 from model import GPT2
 import torch
-import tiktoken
+from dataloader import DataLoaderLite
 
-# get a small sample of text to train on
-with open('input.txt', 'r') as f:
-    text = f.read()
 
-text = text[:1000]  # Truncate to 1000 characters
-enc = tiktoken.get_encoding("gpt2")
-tokens = enc.encode(text)
+dataloader = DataLoaderLite(4, 32)
+# # get a small sample of text to train on
+# with open('input.txt', 'r') as f:
+#     text = f.read()
 
-B, T = 4, 32  # Batch size and sequence length
-buf = torch.tensor(tokens[:B * T + 1])  # Buffer for the batch
+# text = text[:1000]  # Truncate to 1000 characters
+# enc = tiktoken.get_encoding("gpt2")
+# tokens = enc.encode(text)
 
-x = buf[:-1].view(B, T)  # Input tensor of shape (B, T)
-y = buf[1:].view(B, T)  # Target tensor of shape (B, T)
+# B, T = 4, 32  # Batch size and sequence length
+# buf = torch.tensor(tokens[:B * T + 1])  # Buffer for the batch
+
+# x = buf[:-1].view(B, T)  # Input tensor of shape (B, T)
+# y = buf[1:].view(B, T)  # Target tensor of shape (B, T)
 
 
 # initialize the model
@@ -30,6 +32,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
 
 for epoch in range(50):  # Number of epochs
     optimizer.zero_grad()
+    x, y = dataloader.next_batch()
     x = x.to(device)
     y = y.to(device)
     logits, loss = model(x, y)

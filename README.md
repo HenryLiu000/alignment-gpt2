@@ -43,3 +43,7 @@ This commit is just to initialize a model and load a small batch of data from in
 
 Within a small batch of data, I can write a training loop to train the model. Simply feed the small batch of data to the model and do backpropagation.
 
+## 8. dataloader:
+
+In order to feed the data to the model in an efficient way, I need to implement a dataloader. The dataloader is implemented in the class DataloaderLite in dataloader.py.
+
