@@ -1,10 +1,12 @@
 from config import GPTConfig
 from model import GPT2
-import torch
 from dataloader import DataLoaderLite
+import torch
+import time
 
 
-dataloader = DataLoaderLite(4, 32)
+
+dataloader = DataLoaderLite(8, 512)
 # # get a small sample of text to train on
 # with open('input.txt', 'r') as f:
 #     text = f.read()
@@ -31,11 +33,16 @@ model.train()
 optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
 
 for epoch in range(50):  # Number of epochs
+    t0 = time.time()
     optimizer.zero_grad()
     x, y = dataloader.next_batch()
     x = x.to(device)
     y = y.to(device)
     logits, loss = model(x, y)
+    #import code; code.interact(local=locals())
     loss.backward()
     optimizer.step()
-    print(f"Epoch {epoch}: loss = {loss.item()}")
+    torch.cuda.synchronize()  # Wait for all CUDA kernels to finish
+    t1 = time.time()
+    dt = (t1 - t0) * 1000  # Convert to milliseconds
+    print(f"Epoch {epoch}: loss = {loss.item()}", f"dt = {dt:.2f} ms")

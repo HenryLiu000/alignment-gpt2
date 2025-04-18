@@ -53,3 +53,8 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
 
  In order to feed the data to the model in an efficient way, I need to implement a dataloader. The dataloader is implemented in the class DataloaderLite in dataloader.py.
 
+## Section 2
+
+### 9. Test time
+
+This commit is to implement the code for testing the training time of the model. I cannot test the training time though. However, I will outline the steps to measure the training time effectively.
