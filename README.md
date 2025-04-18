@@ -58,3 +58,7 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
 ### 9. Test time
 
 This commit is to implement the code for testing the training time of the model. I cannot test the training time though. However, I will outline the steps to measure the training time effectively.
+
+### 10. TF32
+
+This commit is to use TF32 as the default floating point type for the training. TF32 is a new floating point type introduced by NVIDIA in the Ampere architecture. It is a 19-bit floating point type with 8 bits for the exponent and 10 bits for the mantissa. When training the model, the GPU will keep an accumulator with FP32 precision. The gradients will be computed in TF32 precision and then accumulated in FP32 precision. This is just done by setting the `torch.set_float32_matmul_precision('high')`. This allows for faster training while maintaining model accuracy.

@@ -32,6 +32,8 @@ model.to(device)
 model.train()
 optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
 
+torch.set_float32_matmul_precision('high') # TF32 matmul precision
+
 for epoch in range(50):  # Number of epochs
     t0 = time.time()
     optimizer.zero_grad()
