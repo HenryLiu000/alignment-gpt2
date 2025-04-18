@@ -57,8 +57,18 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
 
 ### 9. Test time
 
-This commit is to implement the code for testing the training time of the model. I cannot test the training time though. However, I will outline the steps to measure the training time effectively.
+ This commit is to implement the code for testing the training time of the model. I cannot test the training time though. However, I will outline the steps to measure the training time effectively.
 
 ### 10. TF32
 
-This commit is to use TF32 as the default floating point type for the training. TF32 is a new floating point type introduced by NVIDIA in the Ampere architecture. It is a 19-bit floating point type with 8 bits for the exponent and 10 bits for the mantissa. When training the model, the GPU will keep an accumulator with FP32 precision. The gradients will be computed in TF32 precision and then accumulated in FP32 precision. This is just done by setting the `torch.set_float32_matmul_precision('high')`. This allows for faster training while maintaining model accuracy.
+ This commit is to use TF32 as the default floating point type for the training. TF32 is a new floating point type introduced by NVIDIA in the Ampere architecture. It is a 19-bit floating point type with 8 bits for the exponent and 10 bits for the mantissa. When training the model, the GPU will keep an accumulator with FP32 precision. The gradients will be computed in TF32 precision and then accumulated in FP32 precision. This is just done by setting the `torch.set_float32_matmul_precision('high')`. This allows for faster training while maintaining model accuracy.
+
+### 11. BF16
+ This commit is to use BF16 as the default floating point type for the training. I just use the following code to set the default floating point type to BF16:
+ ```python
+    with torch.amp.autocast(device_type=device.type, dtype=torch.bfloat16):
+        # training logic here
+        pass
+ ```
+
+ I test the time on a rented Geforce RTX 3050 Ti GPU. Since the Geforce RTX 3050 Ti is also Ampere architecture, the TF32 and BF16 are supported. I set the batch size to 8 and the sequence length to 512. If I use the FP32 precision for training, the training time for a batch is about 9s. If I use the TF32 precision for training, the training time for a batch is about 6s. If I use the BF16 precision for training, the training time for a batch is about 4s. So mixed precision training is really helpful for speeding up the training process.

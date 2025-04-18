@@ -40,8 +40,10 @@ for epoch in range(50):  # Number of epochs
     x, y = dataloader.next_batch()
     x = x.to(device)
     y = y.to(device)
-    logits, loss = model(x, y)
-    #import code; code.interact(local=locals())
+
+    with torch.amp.autocast(device_type=device.type, dtype=torch.bfloat16):
+        logits, loss = model(x, y)
+        #import code; code.interact(local=locals())
     loss.backward()
     optimizer.step()
     torch.cuda.synchronize()  # Wait for all CUDA kernels to finish
