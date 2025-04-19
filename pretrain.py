@@ -26,13 +26,14 @@ dataloader = DataLoaderLite(8, 512)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPT2(GPTConfig())
 model.to(device)
+model = torch.compile(model)
 
 # optimize the model
 
 model.train()
 optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
 
-torch.set_float32_matmul_precision('high') # TF32 matmul precision
+# torch.set_float32_matmul_precision('high') # TF32 matmul precision
 
 for epoch in range(50):  # Number of epochs
     t0 = time.time()

@@ -72,3 +72,6 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
  ```
 
  I test the time on a rented Geforce RTX 3050 Ti GPU. Since the Geforce RTX 3050 Ti is also Ampere architecture, the TF32 and BF16 are supported. I set the batch size to 8 and the sequence length to 512. If I use the FP32 precision for training, the training time for a batch is about 9s. If I use the TF32 precision for training, the training time for a batch is about 6s. If I use the BF16 precision for training, the training time for a batch is about 4s. So mixed precision training is really helpful for speeding up the training process.
+
+### 12. torch.compile
+ This commit introduces torch.compile, a feature in PyTorch 2.0 and later designed to further accelerate model training and inference. torch.compile works by converting PyTorch code into optimized low-level kernels using techniques like graph capture and kernel fusion. This process reduces Python overhead and minimizes GPU memory access, often leading to significant speedups beyond what TF32 or BF16 alone provide. However, the GPU does not have many SMs, so I cannot run torch.compile on the GPU.
