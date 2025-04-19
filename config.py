@@ -2,7 +2,7 @@ class GPTConfig:
     def __init__(
         self,
         block_size: int = 1024,  # max sequence length
-        vocab_size: int = 50257,  # vocabulary size
+        vocab_size: int = 50304,  # vocabulary size
         n_layer: int = 12,  # number of layers
         n_head: int = 12,  # number of attention heads
         n_embd: int = 768,  # embedding dimension

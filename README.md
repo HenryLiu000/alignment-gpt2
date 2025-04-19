@@ -81,3 +81,7 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
  This commit focuses on optimizing the core attention mechanism itself using Flash Attention. Standard self-attention (as implemented in commit #3) has quadratic time and memory complexity with respect to sequence length ($O(N^2)$). This is because it needs to compute and store a large $N \times N$ attention score matrix, leading to significant memory usage and slow reads/writes between the GPU's fast on-chip SRAM and slower High Bandwidth Memory (HBM).
 
  Flash Attention is an optimized implementation that avoids explicitly forming the large attention matrix in HBM. It uses techniques like tiling (processing $Q, K, V$ in blocks), kernel fusion, and careful management of reads/writes between SRAM and HBM to compute the exact same attention output much faster and with linear memory complexity ($O(N)$).
+
+### 14. nice numbers
+
+ In consideration of the structure of GPUs, I need to set the hyperparameters of the model to be nice numbers. For example, the token embedding numbers should be a multiple of 8, so I change it to 50304.
