@@ -75,3 +75,9 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
 
 ### 12. torch.compile
  This commit introduces torch.compile, a feature in PyTorch 2.0 and later designed to further accelerate model training and inference. torch.compile works by converting PyTorch code into optimized low-level kernels using techniques like graph capture and kernel fusion. This process reduces Python overhead and minimizes GPU memory access, often leading to significant speedups beyond what TF32 or BF16 alone provide. However, the GPU does not have many SMs, so I cannot run torch.compile on the GPU.
+
+### 13. Flash Attention
+
+ This commit focuses on optimizing the core attention mechanism itself using Flash Attention. Standard self-attention (as implemented in commit #3) has quadratic time and memory complexity with respect to sequence length ($O(N^2)$). This is because it needs to compute and store a large $N \times N$ attention score matrix, leading to significant memory usage and slow reads/writes between the GPU's fast on-chip SRAM and slower High Bandwidth Memory (HBM).
+
+ Flash Attention is an optimized implementation that avoids explicitly forming the large attention matrix in HBM. It uses techniques like tiling (processing $Q, K, V$ in blocks), kernel fusion, and careful management of reads/writes between SRAM and HBM to compute the exact same attention output much faster and with linear memory complexity ($O(N)$).
