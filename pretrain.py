@@ -31,7 +31,7 @@ model = torch.compile(model)
 # optimize the model
 
 model.train()
-optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, betas=(0.9, 0.95),eps=1e-8)
 
 # torch.set_float32_matmul_precision('high') # TF32 matmul precision
 
@@ -46,6 +46,7 @@ for epoch in range(50):  # Number of epochs
         logits, loss = model(x, y)
         #import code; code.interact(local=locals())
     loss.backward()
+    norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # Gradient clipping
     optimizer.step()
     torch.cuda.synchronize()  # Wait for all CUDA kernels to finish
     t1 = time.time()

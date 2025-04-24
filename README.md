@@ -1,16 +1,18 @@
 # alignment-gpt2-pretrain-report
 
+
+
 The report is to introduce the pretraining of gpt2 model. I will give the detailed explanation of every git commit in the report and I will also illstrate all the important steps of pretraining gpt2 model.
 
 ## Section 1
 ### 1. create readme: 
-This is the first commit, which is to create the readme file.
+ This is the first commit, which is to create the readme file.
 
 ### 2. config: 
-This commit is to create a config class for the gpt2 model, which contains the hyperparameters of the gpt2 structure. Having a config class makes it convenient to change the hyperparameters of the model. The config class is in config.py file.
+ This commit is to create a config class for the gpt2 model, which contains the hyperparameters of the gpt2 structure. Having a config class makes it convenient to change the hyperparameters of the model. The config class is in config.py file.
 
 ### 3. model structure: 
-This commit is to create the gpt2 model structure. The 124M GPT2 consists of a word token embedding layer(wte), a word position embedding layer(wpe), 12 transformer blocks, a layer normalization layer and a linear layer. Following the  tutorial from Karparthy, I implemented the gpt2 model structure in the following steps:
+ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a word token embedding layer(wte), a word position embedding layer(wpe), 12 transformer blocks, a layer normalization layer and a linear layer. Following the  tutorial from Karparthy, I implemented the gpt2 model structure in the following steps:
 
 1. **The overall structure of the gpt2 model**: 
    This is implemented in class GPT2, in the init function, I use nn.Embedding to create wte and wpe, nn.LayerNorm to create ln_f and a nn.Linear layer for the output layer. The only complicated part is the transformer block. I use the nn.ModuleList to create the 12 blocks and leave the block class to be defined in the next step. For the forward function of GPT2 class, I follow Karparthy's tutorial and make the input as a (B, T) tensor. For each row, the T numbers are the index of the tokens in the vocabulary. The forward function converts the index to the corresponding embeddings and processes them through the gpt2 model. The output is then passed through the linear layer to produce the final logits and the logits are fed into the cross entropy loss function if training.
@@ -85,3 +87,10 @@ This commit is to create the gpt2 model structure. The 124M GPT2 consists of a w
 ### 14. nice numbers
 
  In consideration of the structure of GPUs, I need to set the hyperparameters of the model to be nice numbers. For example, the token embedding numbers should be a multiple of 8, so I change it to 50304.
+
+## Section 3
+
+### 15. AdamW parameter and gradient clipping
+
+In order to train the model with stability, I need to follow the report of GPT3 to use their AdamW parameters and also use gradient clipping.
+
