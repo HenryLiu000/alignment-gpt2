@@ -94,3 +94,7 @@ The report is to introduce the pretraining of gpt2 model. I will give the detail
 
 In order to train the model with stability, I need to follow the report of GPT3 to use their AdamW parameters and also use gradient clipping.
 
+### 16. warmup learning rate and cosine decay
+
+The training of the model uses the warmup learning rate and cosine decay. The warmup learning rate is a learning rate that starts from 0 and increases to the maximum learning rate in the first few steps. Then the learning rate decays to 0 using the cosine decay, that is, there is a cosine coefficient that is declining over the training steps from 1 to 0. The cosine coefficient is then used to control the learning rate from the maximum learning rate to the minimum learning rate. The code is available in the file `warmup.py`. 
+

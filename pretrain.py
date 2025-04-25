@@ -1,8 +1,10 @@
 from config import GPTConfig
 from model import GPT2
+from warmup import get_lr
 from dataloader import DataLoaderLite
 import torch
 import time
+import math
 
 
 
@@ -26,16 +28,24 @@ dataloader = DataLoaderLite(8, 512)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPT2(GPTConfig())
 model.to(device)
-model = torch.compile(model)
+# model = torch.compile(model)
 
 # optimize the model
 
 model.train()
-optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, betas=(0.9, 0.95),eps=1e-8)
+
+
+
+max_lr = 6e-4 
+min_lr = max_lr * 0.1 
+warmup_steps = 10 
+max_steps = 50 
+
+optimizer = torch.optim.AdamW(model.parameters(), lr=6e-4, betas=(0.9, 0.95), eps=1e-8)
 
 # torch.set_float32_matmul_precision('high') # TF32 matmul precision
 
-for epoch in range(50):  # Number of epochs
+for epoch in range(max_steps):  # Number of epochs
     t0 = time.time()
     optimizer.zero_grad()
     x, y = dataloader.next_batch()
@@ -47,6 +57,16 @@ for epoch in range(50):  # Number of epochs
         #import code; code.interact(local=locals())
     loss.backward()
     norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # Gradient clipping
+
+    lr = get_lr(epoch, 
+                max_lr=max_lr, 
+                min_lr=min_lr, 
+                warmup_steps=warmup_steps, 
+                max_steps=max_steps)
+    
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
     optimizer.step()
     torch.cuda.synchronize()  # Wait for all CUDA kernels to finish
     t1 = time.time()
