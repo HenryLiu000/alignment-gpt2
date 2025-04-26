@@ -92,15 +92,18 @@ The report is to introduce the pretraining of gpt2 model. I will give the detail
 
 ### 15. AdamW parameter and gradient clipping
 
-In order to train the model with stability, I need to follow the report of GPT3 to use their AdamW parameters and also use gradient clipping.
+ In order to train the model with stability, I need to follow the report of GPT3 to use their AdamW parameters and also use gradient clipping.
 
 ### 16. warmup learning rate and cosine decay
 
-The training of the model uses the warmup learning rate and cosine decay. The warmup learning rate is a learning rate that starts from 0 and increases to the maximum learning rate in the first few steps. Then the learning rate decays to 0 using the cosine decay, that is, there is a cosine coefficient that is declining over the training steps from 1 to 0. The cosine coefficient is then used to control the learning rate from the maximum learning rate to the minimum learning rate. The code is available in the file `warmup.py`. 
+ The training of the model uses the warmup learning rate and cosine decay. The warmup learning rate is a learning rate that starts from 0 and increases to the maximum learning rate in the first few steps. Then the learning rate decays to 0 using the cosine decay, that is, there is a cosine coefficient that is declining over the training steps from 1 to 0. The cosine coefficient is then used to control the learning rate from the maximum learning rate to the minimum learning rate. The code is available in the file `warmup.py`. 
 
 ### 17. Weight Decay and Fused AdamW
 
-In this section, two key optimizations are introduced: selective weight decay and the use of a fused AdamW optimizer. Weight decay serves as a regularization strategy to mitigate overfitting by penalizing large weights. However, parameters such as the scale factors in layer normalization and the biases in linear layers, which typically have only a single value, are excluded from weight decay. By classifying parameters into those that require weight decay and those that do not, more effective regularization is achieved.
+ In this section, two key optimizations are introduced: selective weight decay and the use of a fused AdamW optimizer. Weight decay serves as a regularization strategy to mitigate overfitting by penalizing large weights. However, parameters such as the scale factors in layer normalization and the biases in linear layers, which typically have only a single value, are excluded from weight decay. By classifying parameters into those that require weight decay and those that do not, more effective regularization is achieved.
 
 Furthermore, the fused AdamW optimizer is employed to improve efficiency. When the "fused" parameter is set to True, the optimizer leverages fused kernels to compute gradients, update weights, and perform additional operations. This approach reduces both memory accesses and the number of kernel launches, ultimately decreasing overhead and accelerating training. These enhancements are implemented in the `configure_optimizers()` function within the `GPT2` class in `model.py`.
 
+### 18. Gradient Accumulation
+
+ Gradient accumulation is a technique used to effectively increase the batch size without requiring additional GPU memory. This is particularly useful when training large models or when GPU memory is limited. The idea is to perform multiple forward and backward passes with smaller batches, accumulating the gradients over these passes, and then update the model weights only once after a specified number of iterations. This allows for simulating a larger batch size while keeping the memory footprint manageable. The implementation of gradient accumulation is straightforward: during each iteration, gradients are computed and accumulated, but the model weights are only updated after a specified number of iterations, controlled by the `grad_accum_steps` parameter. This is done in the training loop, where the optimizer's step function is called only after the specified number of iterations.

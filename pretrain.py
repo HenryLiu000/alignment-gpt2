@@ -8,7 +8,15 @@ import math
 
 
 
-dataloader = DataLoaderLite(8, 512)
+total_batch_size = 524288 # 2**19, ~0.5M, in number of tokens
+B = 8 # micro batch size
+T = 512 # sequence length
+assert total_batch_size % (B * T) == 0, "make sure total_batch_size is divisible by B * T"
+grad_accum_steps = total_batch_size // (B * T)
+print(f"total desired batch size: {total_batch_size}")
+print(f"=> calculated gradient accumulation steps: {grad_accum_steps}")
+ 
+dataloader = DataLoaderLite(B=B, T=T)
 # # get a small sample of text to train on
 # with open('input.txt', 'r') as f:
 #     text = f.read()
@@ -45,20 +53,28 @@ optimizer = model.configure_optimizers(weight_decay=0.1, learning_rate=6e-4, dev
 
 # torch.set_float32_matmul_precision('high') # TF32 matmul precision
 
-for epoch in range(max_steps):  # Number of epochs
+for step in range(max_steps):  # Number of epochs
     t0 = time.time()
     optimizer.zero_grad()
-    x, y = dataloader.next_batch()
-    x = x.to(device)
-    y = y.to(device)
 
-    with torch.amp.autocast(device_type=device.type, dtype=torch.bfloat16):
-        logits, loss = model(x, y)
-        #import code; code.interact(local=locals())
-    loss.backward()
+
+    loss_accum = 0.0
+    for micro_step in range(grad_accum_steps):
+        x, y = dataloader.next_batch()
+        x, y = x.to(device), y.to(device)
+        with torch.autocast(device_type=device.type, dtype=torch.bfloat16):
+            logits, loss = model(x, y)
+        # we have to scale the loss to account for gradient accumulation,
+        # because the gradients just add on each successive backward().
+        # addition of gradients corresponds to a SUM in the objective, but
+        # instead of a SUM we want MEAN. Scale the loss here so it comes out right
+        loss = loss / grad_accum_steps
+        loss_accum += loss.detach()
+        loss.backward()
+
     norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)  # Gradient clipping
 
-    lr = get_lr(epoch, 
+    lr = get_lr(step, 
                 max_lr=max_lr, 
                 min_lr=min_lr, 
                 warmup_steps=warmup_steps, 
@@ -70,5 +86,8 @@ for epoch in range(max_steps):  # Number of epochs
     optimizer.step()
     torch.cuda.synchronize()  # Wait for all CUDA kernels to finish
     t1 = time.time()
-    dt = (t1 - t0) * 1000  # Convert to milliseconds
-    print(f"Epoch {epoch}: loss = {loss.item()}", f"dt = {dt:.2f} ms")
+    dt = (t1 - t0)  # seconds per step
+    tokens_processed = dataloader.B * dataloader.T * grad_accum_steps
+    tokens_per_sec = tokens_processed / dt
+    # dt ms
+    print(f"step {step:4d} | loss: {loss_accum.item():.6f} | lr {lr:.4e} | norm: {norm:.4f} | dt: {dt*1000:.2f}ms | tok/sec: {tokens_per_sec:.2f}")
