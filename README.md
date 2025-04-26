@@ -98,3 +98,9 @@ In order to train the model with stability, I need to follow the report of GPT3 
 
 The training of the model uses the warmup learning rate and cosine decay. The warmup learning rate is a learning rate that starts from 0 and increases to the maximum learning rate in the first few steps. Then the learning rate decays to 0 using the cosine decay, that is, there is a cosine coefficient that is declining over the training steps from 1 to 0. The cosine coefficient is then used to control the learning rate from the maximum learning rate to the minimum learning rate. The code is available in the file `warmup.py`. 
 
+### 17. Weight Decay and Fused AdamW
+
+In this section, two key optimizations are introduced: selective weight decay and the use of a fused AdamW optimizer. Weight decay serves as a regularization strategy to mitigate overfitting by penalizing large weights. However, parameters such as the scale factors in layer normalization and the biases in linear layers, which typically have only a single value, are excluded from weight decay. By classifying parameters into those that require weight decay and those that do not, more effective regularization is achieved.
+
+Furthermore, the fused AdamW optimizer is employed to improve efficiency. When the "fused" parameter is set to True, the optimizer leverages fused kernels to compute gradients, update weights, and perform additional operations. This approach reduces both memory accesses and the number of kernel launches, ultimately decreasing overhead and accelerating training. These enhancements are implemented in the `configure_optimizers()` function within the `GPT2` class in `model.py`.
+
