@@ -121,3 +121,9 @@ Furthermore, the fused AdamW optimizer is employed to improve efficiency. When t
 ### 22. Hellaswag
 
  Hellaswag (often stylized HellaSwag) is a popular and challenging benchmark dataset specifically designed to evaluate the **commonsense reasoning** capabilities of artificial intelligence models, particularly large language models (LLMs). It falls under the category of **Commonsense Natural Language Inference (NLI)**. I use this dataset to evaluate the capabilities of the pretrained model. Similar to the situation of the FineWeb dataset, I cannot download due to the limit of my disk, but I have prepared the code to download and use this dataset.
+
+## Section 4
+
+### 23. summary
+
+ The section 4 of the video is mainly showing the result of the pretraining process and the final result. Since Karparthy recorded detailed information in the log file, he can make diagrams based on the infos provided by the log file. In the video, he shows that the loss is declining and the Hellaswag acc is increasing by steps. Then he make the README file of his project. The similar README file of my project is just this file. I use `git add .`, `git commit -m "[2200013168] xxx"`, `git push -u origin main` to create a git repo in my local environment and simultaneously synchronize to my GitHub Repo, the website of my GitHub Repo is `https://github.com/HenryLiu000/alignment-gpt2`, which has the complete information of the git record of this assignment.
