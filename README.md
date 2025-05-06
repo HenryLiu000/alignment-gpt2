@@ -1,4 +1,4 @@
-# alignment-gpt2-pretrain-report
+*# alignment-gpt2-pretrain-report
 
 
 
@@ -107,3 +107,10 @@ Furthermore, the fused AdamW optimizer is employed to improve efficiency. When t
 ### 18. Gradient Accumulation
 
  Gradient accumulation is a technique used to effectively increase the batch size without requiring additional GPU memory. This is particularly useful when training large models or when GPU memory is limited. The idea is to perform multiple forward and backward passes with smaller batches, accumulating the gradients over these passes, and then update the model weights only once after a specified number of iterations. This allows for simulating a larger batch size while keeping the memory footprint manageable. The implementation of gradient accumulation is straightforward: during each iteration, gradients are computed and accumulated, but the model weights are only updated after a specified number of iterations, controlled by the `grad_accum_steps` parameter. This is done in the training loop, where the optimizer's step function is called only after the specified number of iterations.
+
+### 19. DDP (Distributed Data Parallel)
+
+ This section introduces Distributed Data Parallel (DDP), a technique designed to significantly accelerate model training by leveraging multiple GPUs. Its core principle is **data parallelism** coupled with **gradient synchronization**. DDP operates by first replicating the **entire model** onto each participating GPU. Subsequently, a large data batch is divided, and **each GPU processes a distinct data shard** independently, performing forward and backward passes to compute local gradients. Critically, **before the optimizer updates the model weights**, DDP automatically **synchronizes and aggregates** (typically by averaging) these locally computed gradients across all GPUs involved. Finally, **every model replica is updated using the exact same aggregated gradient**, ensuring parameter consistency across all devices while parallelizing the workload, which drastically reduces overall training time.
+
+### 20. FineWeb Dataset
+ To implement the final training, we need to switch to a larger dataset. FineWeb is a very large dataset (around 15 trillion tokens) created by Hugging Face. It's derived from the Common Crawl web scrapes (snapshots of the public internet). Unlike raw web data, FineWeb has undergone extensive filtering and deduplication processes. The goal was to create an open dataset comparable in quality to the large, proprietary datasets used to train state-of-the-art closed models (like earlier versions of GPT). Unfortunately, I could download the dataset due to the capacity limit of my disk, but I finish all the code to use this dataset to pretrain GPT2, the downloading code is in `fineweb.py` and the dataset used for training has been switched to this dataset in `dataloader.py` and `pretrain.py`.
