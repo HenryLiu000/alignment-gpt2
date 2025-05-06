@@ -30,12 +30,13 @@ class DataLoaderLite:
 
         if master_process:
             print(f"found {len(shards)} shards for split {split}")
+        self.reset()
  
         # state
+    def reset(self):
         self.current_shard = 0
         self.tokens = load_tokens(self.shards[self.current_shard])
         self.current_position = self.B * self.T * self.process_rank
-        self.total_batches = len(self.tokens) // (B * T)
  
     def next_batch(self):
         B, T = self.B, self.T
